@@ -1,0 +1,18 @@
+--- a/net/minecraft/world/storage/loot/conditions/LootConditionManager.java
++++ b/net/minecraft/world/storage/loot/conditions/LootConditionManager.java
+@@ -51,6 +51,7 @@
+    }
+ 
+    public static <T> Predicate<T> func_216305_a(Predicate<T>[] p_216305_0_) {
++      if (p_216305_0_ == null) return v -> true;
+       switch(p_216305_0_.length) {
+       case 0:
+          return (p_216304_0_) -> {
+@@ -74,6 +75,7 @@
+    }
+ 
+    public static <T> Predicate<T> func_216306_b(Predicate<T>[] p_216306_0_) {
++      if (p_216306_0_ == null) return v -> false;
+       switch(p_216306_0_.length) {
+       case 0:
+          return (p_216308_0_) -> {
