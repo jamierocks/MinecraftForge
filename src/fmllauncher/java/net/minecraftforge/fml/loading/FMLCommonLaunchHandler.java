@@ -27,6 +27,7 @@ import net.minecraftforge.fml.loading.moddiscovery.ModFile;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.spongepowered.asm.mixin.Mixins;
 
 import java.io.File;
 import java.net.URL;
@@ -53,7 +54,8 @@ public abstract class FMLCommonLaunchHandler
             "org.apache.logging.log4j.", "org.apache.http.", "org.apache.maven.", "org.objectweb.asm.",
             "paulscode.sound.", "com.ibm.icu.", "sun.", "javax.", "gnu.trove.", "com.electronwill.nightconfig.",
             "net.minecraftforge.fml.loading.", "net.minecraftforge.fml.language.",
-            "net.minecraftforge.eventbus.", "net.minecraftforge.api.", "com.mojang.util.QueueLogAppender"
+            "net.minecraftforge.eventbus.", "net.minecraftforge.api.", "com.mojang.util.QueueLogAppender",
+            "org.spongepowered.asm."
     );
 
     private final List<Path> additionalLibraries = new ArrayList<>();
@@ -88,6 +90,7 @@ public abstract class FMLCommonLaunchHandler
 
     protected void beforeStart(ITransformingClassLoader launchClassLoader)
     {
+        Mixins.addConfiguration("mixins.forge.json");
         FMLLoader.beforeStart(launchClassLoader);
     }
 
