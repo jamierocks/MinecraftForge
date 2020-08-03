@@ -1,0 +1,17 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "net.minecraftforge.mixin",
+    "refmap": "mixins.forge.refmap.json",
+    "target": "@env(DEFAULT)",
+    "compatibilityLevel": "JAVA_8",
+    "client": [
+        "client.ClientBrandRetrieverMixin"
+    ],
+    "mixins": [
+        "advancements.AdvancementBuilderMixin",
+        "advancements.AdvancementListMixin",
+        "resources.VanillaPackMixin",
+        "server.MinecraftServerMixin"
+    ]
+}

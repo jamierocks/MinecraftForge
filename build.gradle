@@ -164,6 +164,7 @@ project(':forge') {
                     "$rootDir/src/generated/resources"
                 ]
             }
+            ext.refMap = 'mixins.forge.refmap.json'
         }
         test {
             compileClasspath += sourceSets.fmllauncher.runtimeClasspath
@@ -474,6 +475,55 @@ project(':forge') {
         testImplementation 'org.opentest4j:opentest4j:1.0.0' // needed for junit 5
         testImplementation 'org.hamcrest:hamcrest-all:1.3' // needs advanced matching for list order
     }
+
+    // Pass obfuscation data over to Mixin, based on MixinGradle
+    // TODO: get Patcher plugin support into MixinGradle
+    def configureMixinSet = { SourceSet set ->
+        // Get the sourceSet's compile task
+        def compileTask = project.tasks[set.compileJavaTaskName]
+
+        // Refmap file
+        def refMapFile = project.file("${compileTask.temporaryDir}/${compileTask.name}-refmap.json")
+
+        // Generated tsrg file
+        def tsrgFile = project.file("${compileTask.temporaryDir}/${compileTask.name}-mappings.tsrg")
+
+        // Get mappings
+        compileTask.dependsOn('createMcp2Srg')
+        def mappings = project.tasks.createMcp2Srg.outputs.files[0]
+
+        // Closure to prepare AP environment before compile task runs
+        compileTask.doFirst {
+            refMapFile.delete()
+            tsrgFile.delete()
+
+            compileTask.options.compilerArgs += [
+                    "-AreobfTsrgFile=${mappings.canonicalPath}",
+                    "-AoutTsrgFile=${tsrgFile.canonicalPath}",
+                    "-AoutRefMapFile=${refMapFile.canonicalPath}",
+                    "-AmappingTypes=tsrg"
+            ]
+        }
+
+        // Refmap is generated with a generic name, rename to sourceset-specific
+        // name ready for inclusion into target jar. We can't use rename in the
+        // jar spec because there may be multiple refmaps with the same source
+        // name
+        def taskSpecificRefMap = new File(refMapFile.parentFile, set.ext.refMap)
+
+        // Closure to rename generated refMap to artefact-specific refmap when
+        // compile task is completed
+        compileTask.doLast {
+            // Delete the old one
+            taskSpecificRefMap.delete()
+
+            // Copy the new one if it was successfully generated
+            if (refMapFile.exists()) {
+                com.google.common.io.Files.copy(refMapFile, taskSpecificRefMap)
+            }
+        }
+    }
+    configureMixinSet(sourceSets.main)
     
     def extraTxts = [
         rootProject.file('CREDITS.txt'),
